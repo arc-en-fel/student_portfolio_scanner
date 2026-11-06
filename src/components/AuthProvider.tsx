@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 interface AuthContextType {
   user: any | null
   loading: boolean
+  logout: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -39,8 +40,13 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
     }
   }, [])
 
+  const logout = async () => {
+    await supabase.auth.signOut()
+    setUser(null)
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading, logout }}>
       {children}
     </AuthContext.Provider>
   )

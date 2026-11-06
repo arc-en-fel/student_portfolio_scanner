@@ -93,9 +93,9 @@ export const CreativeTemplate: FC<CreativeTemplateProps> = ({ profile, accentCol
                     <p className="text-slate-300 text-sm mb-4 line-clamp-3">
                       {project.description}
                     </p>
-                    {project.tech_stack && (
+                    {project.techStack && (
                       <div className="flex flex-wrap gap-2 mb-4">
-                        {project.tech_stack.slice(0, 4).map((tech, i) => (
+                        {project.techStack.slice(0, 4).map((tech: string, i: number) => (
                           <span
                             key={i}
                             className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full"
@@ -109,9 +109,9 @@ export const CreativeTemplate: FC<CreativeTemplateProps> = ({ profile, accentCol
                         ))}
                       </div>
                     )}
-                    {project.live_url && (
+                    {project.liveUrl && (
                       <a
-                        href={project.live_url}
+                        href={project.liveUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-block font-bold text-sm hover:opacity-80"
@@ -180,13 +180,13 @@ export const CreativeTemplate: FC<CreativeTemplateProps> = ({ profile, accentCol
                     />
 
                     <div className="bg-slate-800 p-6 rounded-xl hover:bg-slate-700 transition-colors">
-                      <h3 className="text-2xl font-bold mb-1">{exp.job_title}</h3>
+                      <h3 className="text-2xl font-bold mb-1">{exp.jobTitle}</h3>
                       <p style={{ color: accentColor }} className="font-semibold mb-2">
                         {exp.company}
                       </p>
                       <p className="text-sm text-slate-400 mb-3">
-                        {new Date(exp.start_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })} -
-                        {exp.is_current_role ? ' Present' : ` ${new Date(exp.end_date!).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}`}
+                        {new Date(exp.startDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })} -
+                        {exp.isCurrentRole ? ' Present' : ` ${new Date(exp.endDate!).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}`}
                       </p>
                       {exp.description && (
                         <p className="text-slate-300">{exp.description}</p>
@@ -223,7 +223,7 @@ export const CreativeTemplate: FC<CreativeTemplateProps> = ({ profile, accentCol
                     {edu.institution}
                   </p>
                   <p className="text-slate-400">
-                    {edu.start_year} - {edu.end_year}
+                    {edu.startYear} - {edu.endYear}
                   </p>
                 </div>
               ))}

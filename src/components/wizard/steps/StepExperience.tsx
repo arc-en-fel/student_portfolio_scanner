@@ -149,10 +149,10 @@ export const StepExperience: FC<StepExperienceProps> = ({ onComplete }) => {
                 <div className="flex-1 flex gap-3">
                   <Briefcase className="text-teal-400 flex-shrink-0" size={20} />
                   <div>
-                    <h4 className="font-semibold text-slate-100">{exp.job_title}</h4>
+                    <h4 className="font-semibold text-slate-100">{exp.jobTitle}</h4>
                     <p className="text-slate-300 text-sm">{exp.company}</p>
                     <p className="text-xs text-slate-400 mt-1">
-                      {formatDateRange(exp.start_date, exp.end_date, exp.is_current_role)}
+                      {formatDateRange(exp.startDate, exp.endDate, exp.isCurrentRole)}
                     </p>
                     {exp.location && (
                       <p className="text-xs text-slate-400">{exp.location}</p>

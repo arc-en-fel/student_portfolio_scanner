@@ -66,11 +66,11 @@ export const ModernTemplate: FC<ModernTemplateProps> = ({ profile, accentColor =
               <h3 className="font-bold text-lg mb-4" style={{ color: accentColor }}>
                 Contact
               </h3>
-              {profile.professional_email && (
+              {profile.professionalEmail && (
                 <div className="flex items-center gap-2 text-sm mb-3">
                   <Mail size={16} style={{ color: accentColor }} />
-                  <a href={`mailto:${profile.professional_email}`} className="hover:text-teal-400">
-                    {profile.professional_email}
+                  <a href={`mailto:${profile.professionalEmail}`} className="hover:text-teal-400">
+                    {profile.professionalEmail}
                   </a>
                 </div>
               )}
@@ -137,13 +137,13 @@ export const ModernTemplate: FC<ModernTemplateProps> = ({ profile, accentColor =
                 <div className="space-y-6">
                   {profile.experience.map((exp, idx) => (
                     <div key={idx} className="border-l-2 border-slate-700 pl-4 pb-4">
-                      <h3 className="text-xl font-bold">{exp.job_title}</h3>
+                      <h3 className="text-xl font-bold">{exp.jobTitle}</h3>
                       <p style={{ color: accentColor }} className="font-semibold">
                         {exp.company}
                       </p>
                       <p className="text-sm text-slate-400 mt-1">
-                        {new Date(exp.start_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })} -
-                        {exp.is_current_role ? ' Present' : ` ${new Date(exp.end_date!).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}`}
+                        {new Date(exp.startDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })} -
+                        {exp.isCurrentRole ? ' Present' : ` ${new Date(exp.endDate!).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}`}
                       </p>
                       {exp.description && (
                         <p className="text-slate-300 mt-2">{exp.description}</p>
@@ -176,9 +176,9 @@ export const ModernTemplate: FC<ModernTemplateProps> = ({ profile, accentColor =
                       <div className="p-4">
                         <h3 className="font-bold text-lg mb-2">{project.title}</h3>
                         <p className="text-slate-400 text-sm mb-3">{project.description}</p>
-                        {project.tech_stack && (
+                        {project.techStack && (
                           <div className="flex flex-wrap gap-2 mb-3">
-                            {project.tech_stack.slice(0, 3).map((tech, i) => (
+                            {project.techStack.slice(0, 3).map((tech: string, i: number) => (
                               <span
                                 key={i}
                                 className="text-xs px-2 py-1 rounded"
@@ -192,9 +192,9 @@ export const ModernTemplate: FC<ModernTemplateProps> = ({ profile, accentColor =
                             ))}
                           </div>
                         )}
-                        {project.github_url && (
+                        {project.githubUrl && (
                           <a
-                            href={project.github_url}
+                            href={project.githubUrl}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-sm hover:opacity-80"
@@ -222,7 +222,7 @@ export const ModernTemplate: FC<ModernTemplateProps> = ({ profile, accentColor =
                       <h3 className="text-lg font-bold">{edu.degree}</h3>
                       <p style={{ color: accentColor }}>{edu.institution}</p>
                       <p className="text-sm text-slate-400">
-                        {edu.start_year} - {edu.end_year}
+                        {edu.startYear} - {edu.endYear}
                       </p>
                     </div>
                   ))}

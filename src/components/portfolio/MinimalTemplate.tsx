@@ -69,11 +69,11 @@ export const MinimalTemplate: FC<MinimalTemplateProps> = ({ profile, accentColor
             <div className="space-y-6">
               {profile.experience.map((exp, idx) => (
                 <div key={idx}>
-                  <h3 className="font-bold text-lg">{exp.job_title}</h3>
+                  <h3 className="font-bold text-lg">{exp.jobTitle}</h3>
                   <p style={{ color: accentColor }}>{exp.company}</p>
                   <p className="text-sm text-slate-600">
-                    {new Date(exp.start_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })} -
-                    {exp.is_current_role ? ' Present' : ` ${new Date(exp.end_date!).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}`}
+                    {new Date(exp.startDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })} -
+                    {exp.isCurrentRole ? ' Present' : ` ${new Date(exp.endDate!).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}`}
                   </p>
                   {exp.description && <p className="mt-2 text-slate-700">{exp.description}</p>}
                 </div>
@@ -93,7 +93,7 @@ export const MinimalTemplate: FC<MinimalTemplateProps> = ({ profile, accentColor
                 <div key={idx}>
                   <h3 className="font-bold">{edu.degree}</h3>
                   <p style={{ color: accentColor }}>{edu.institution}</p>
-                  <p className="text-sm text-slate-600">{edu.start_year} - {edu.end_year}</p>
+                  <p className="text-sm text-slate-600">{edu.startYear} - {edu.endYear}</p>
                 </div>
               ))}
             </div>
@@ -111,9 +111,9 @@ export const MinimalTemplate: FC<MinimalTemplateProps> = ({ profile, accentColor
                 <div key={idx}>
                   <h3 className="font-bold text-lg">{project.title}</h3>
                   <p className="text-slate-700">{project.description}</p>
-                  {project.tech_stack && (
+                  {project.techStack && (
                     <div className="flex flex-wrap gap-2 mt-2">
-                      {project.tech_stack.map((tech, i) => (
+                      {project.techStack.map((tech: string, i: number) => (
                         <span key={i} className="text-xs px-2 py-1 bg-slate-200 rounded">
                           {tech}
                         </span>

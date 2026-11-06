@@ -11,6 +11,7 @@ const AuthPage: FC<AuthPageProps> = ({ mode }) => {
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
   const [message, setMessage] = useState<string>('')
+  const [messageType, setMessageType] = useState<'info' | 'error'>('info')
   const [busy, setBusy] = useState<boolean>(false)
   const { user } = useAuth()
   const navigate = useNavigate()
@@ -34,12 +35,16 @@ const AuthPage: FC<AuthPageProps> = ({ mode }) => {
     setBusy(false)
 
     if (error) {
+      setMessageType('error')
       setMessage(error.message)
       return
     }
 
     if (mode === 'register' && !data.session) {
-      setMessage('Check your inbox and confirm your email before signing in.')
+      setMessageType('info')
+      setMessage('Check your email to verify your account. Then you can log in.')
+      setEmail('')
+      setPassword('')
       return
     }
 
@@ -83,25 +88,34 @@ const AuthPage: FC<AuthPageProps> = ({ mode }) => {
         </button>
       </form>
       {message && (
-        <p role="status" className="flash mt-4">
+        <p role="status" className={`flash mt-4 ${messageType === 'error' ? 'text-red-400' : ''}`}>
           {message}
         </p>
       )}
-      <p className="muted mt-4">
+      <div className="muted mt-4 text-sm space-y-2">
         {mode === 'register' ? (
           <>
-            Already registered? <Link className="link" to="/login">
-              Log in
-            </Link>
+            <p>
+              Already registered? <Link className="link" to="/login">
+                Log in
+              </Link>
+            </p>
           </>
         ) : (
           <>
-            New here? <Link className="link" to="/register">
-              Register
-            </Link>
+            <p>
+              New here? <Link className="link" to="/register">
+                Register
+              </Link>
+            </p>
+            <p>
+              Forgot password? <Link className="link" to="/forgot-password">
+                Reset it
+              </Link>
+            </p>
           </>
         )}
-      </p>
+      </div>
     </section>
   )
 }
