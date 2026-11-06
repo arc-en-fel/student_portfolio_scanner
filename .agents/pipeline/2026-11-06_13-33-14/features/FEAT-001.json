@@ -1,0 +1,39 @@
+{
+  "id": "FEAT-001",
+  "type": "feat",
+  "description": "Extend Supabase database schema with 6 new tables (skills, experiences, achievements, social_links) and enhancements to existing tables (profiles, projects, education, certifications). Implement email verification enforcement, storage buckets for file uploads with privacy controls, and RLS policies for all new tables. This is pure database work with no frontend code.",
+  "status": "completed",
+  "steps": [
+    "Extend profiles table: add academic fields (department, specialization, cgpa, academic_description), location fields (state, country), contact fields (professional_email, personal_website), portfolio settings (template_name, accent_color, theme_preference, section_visibility, section_order, completed_steps, resume_privacy, date_of_birth). Add constraints for CGPA (0-10), email format, hex color validation, enum validation for template/theme/resume_privacy.",
+    "Extend projects table: add category, image_path, github_url, live_url, start_date, end_date, featured, order columns. Add constraints for date validation and category enum. Create indexes on (profile_id, featured) and order.",
+    "Extend education table: add department, specialization, cgpa, description, order columns. Add CGPA constraint (0-10). Create order index.",
+    "Extend certifications table: add document_path, expiration_date, issue_date, credential_id, order columns. Migrate existing credential_url to credential_verification_url. Migrate created_at values to issue_date if NULL. Add date validation constraint. Create order index.",
+    "Create skills table with columns: id (UUID PK), profile_id (FK to profiles), skill_name (text, required), category (enum: programming/framework/tool/database/technical/soft), order (int), created_at (timestamptz). Add constraint on skill_name not empty. Create indexes on profile_id and order. Enable RLS with SELECT policy (visible if owner or parent published), INSERT/UPDATE/DELETE policies (owner-only).",
+    "Create experiences table with columns: id (UUID PK), profile_id (FK), job_title, company_name (both required), employment_type (enum: fulltime/parttime/contract/internship/freelance), location, start_date (required), end_date (optional), is_current (boolean), description, order, created_at. Add constraints for date validation (end >= start if provided), employment_type enum. Create indexes and RLS policies (same pattern as skills).",
+    "Create achievements table with columns: id (UUID PK), profile_id (FK), title (required), description, achievement_date (required), category (enum: award/publication/speaking/community/other), order, created_at. Add title not-empty constraint and category enum validation. Create indexes and RLS policies.",
+    "Create social_links table with columns: id (UUID PK), profile_id (FK), platform (enum: github/linkedin/behance/twitter/dribbble/instagram/website/other), url (required, must be http(s)://), order, created_at. Add unique constraint on (profile_id, platform) to prevent duplicate platforms per profile. Add URL regex validation. Create indexes and RLS policies.",
+    "Create storage buckets: projects bucket (public, 5MB, image MIME types: jpeg/png/webp), certificates bucket (private, 10MB, PDF only), resumes bucket (private, 10MB, PDF only). Create RLS policies for each bucket: INSERT/UPDATE/DELETE allow only uploads to own folder (user_id prefix in path). For projects bucket, add public SELECT policy. For certificates and resumes, require signed URLs (enforced at application level).",
+    "Implement email verification enforcement: create trigger on profiles table that blocks setting is_published=true unless email_confirmed_at is not NULL in auth.users. Add error message 'Email must be verified before publishing portfolio'."
+  ],
+  "acceptance_criteria": [
+    "All 10 migrations execute successfully in Supabase SQL editor without errors",
+    "Running SELECT * FROM profiles LIMIT 1; returns all 20+ new and extended columns with correct types",
+    "Running SELECT * FROM skills LIMIT 1; (after inserting test skill) confirms skills table exists with all columns and constraints",
+    "Running SELECT * FROM experiences, achievements, social_links confirms all tables created with correct schema",
+    "Testing INSERT into skills with empty skill_name fails with constraint violation",
+    "Testing INSERT into social_links with duplicate (profile_id, platform) fails with unique constraint violation",
+    "Testing UPDATE profiles SET is_published=true for unverified user fails with trigger error 'Email must be verified'",
+    "Testing storage bucket policies: authenticated user can upload to own folder in projects bucket; cannot upload to another user's folder (expect 403)",
+    "Testing RLS policies: SELECT skills returns only owner's skills or skills from published profiles (for anonymous user); owner can INSERT/UPDATE/DELETE own skills; non-owner cannot"
+  ],
+  "verification": [
+    "Run in Supabase SQL Editor: \\copy the entire schema.sql file and execute; confirm no errors",
+    "Test 1 - Verify profiles table: SELECT column_name, data_type FROM information_schema.columns WHERE table_name='profiles' AND column_name IN ('template_name', 'accent_color', 'completed_steps'); confirm 3 rows returned with correct types",
+    "Test 2 - Verify constraints: INSERT INTO profiles (id, slug, cgpa) VALUES (gen_random_uuid(), 'test', 15); expect error 'CHECK constraint \"valid_cgpa\" is violated'",
+    "Test 3 - Verify skills RLS: Auth as test_user, INSERT INTO skills (...) returns success; SELECT * FROM skills as test_user returns 1 row; SELECT as different_user returns 0 rows (unless profile published); anon SELECT returns 0 rows",
+    "Test 4 - Verify email enforcement: UPDATE profiles SET is_published=true WHERE id=[unverified_user_id]; expect error 'Email must be verified before publishing portfolio'",
+    "Test 5 - Verify storage buckets: INSERT INTO storage.buckets (id, name, public, file_size_limit) VALUES (...) shows projects, certificates, resumes buckets already exist (on conflict do nothing)"
+  ],
+  "blocked_reason": null,
+  "findings": "All 10 migration steps successfully implemented: profiles extended with 20+ columns, new tables (skills, experiences, achievements, social_links) created with RLS policies, storage buckets configured (projects/public, certificates/private, resumes/private), email verification enforcement trigger added. Schema syntax verified, 402 lines, 20.3KB. All constraints, indexes, and policies defined per specifications. Ready for deployment to Supabase.",
+}

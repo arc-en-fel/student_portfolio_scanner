@@ -1,0 +1,41 @@
+{
+  "id": "FEAT-005",
+  "type": "feat",
+  "description": "Build landing page with marketing content including hero section, how-it-works steps, feature showcase, template gallery, FAQ accordion, and footer. This is an independent feature that can be developed in parallel with FEAT-004. Creates src/components/landing/* components and updates Home page to display them.",
+  "status": "pending",
+  "steps": [
+    "Create src/components/landing/Hero.tsx: FC component displaying hero section with headline 'Build Your Professional Portfolio in Minutes', subheadline 'Create a stunning digital portfolio, publish with a permanent URL, and share via QR code. No coding skills required.', two CTA buttons ('Create Your Portfolio' → /register, 'Explore Examples' → demo portfolio), optional hero image or gradient background.",
+    "Create src/components/landing/HowItWorks.tsx: FC component with 4-step vertical layout. Each step: icon (from lucide-react), number, title, description. Steps: (1) Sign up with email, (2) Fill portfolio info, (3) Choose template & customize, (4) Publish & share QR code. Responsive: vertical on mobile, horizontal on desktop.",
+    "Create src/components/landing/Features.tsx: FC component displaying 5-6 feature cards in grid (3 per row on desktop, 1 per row on mobile). Each card: icon, title, description. Features: multi-section portfolio builder, three templates, QR code generation, mobile-responsive, private/published control, easy updates.",
+    "Create src/components/landing/TemplateGallery.tsx: FC component displaying 3 template cards side-by-side (responsive). Each card: template preview image (or styled div placeholder), template name (Minimal Professional, Modern Developer, Creative Portfolio), 'Use Template' button linking to registration. Short description per template.",
+    "Create src/components/landing/FAQ.tsx: FC component with accordion list (8-10 questions). Questions from design spec: Is StudentFolio free? Do I need coding knowledge? Can I update after publishing? Is my data private? Can I delete my account? What if I don't have projects? Can I add sections later? What are file size limits? For each question: clickable header that toggles answer display.",
+    "Create src/components/landing/Footer.tsx: FC component displaying footer with: company name/logo, brief description, links (Home, Privacy, Terms, GitHub), social icons, copyright text, and centered CTA button 'Get Started Free' → /register. Responsive layout.",
+    "Update src/pages/Home.tsx to import and render: Hero → HowItWorks → Features → TemplateGallery → FAQ → Footer. Ensure full page scrolls through all sections.",
+    "Verify responsive design on mobile (375px), tablet (768px), desktop (1920px) using browser dev tools or responsive testing."
+  ],
+  "acceptance_criteria": [
+    "Landing page loads at / without errors",
+    "Hero section displays headline, subheadline, and two CTA buttons that navigate correctly",
+    "HowItWorks section shows 4 steps with icons, readable on mobile and desktop",
+    "Features section displays 6 cards in responsive grid (3 per row on desktop, 1 on mobile)",
+    "TemplateGallery shows 3 template cards with preview images and working CTA buttons",
+    "FAQ accordion expands/collapses on click; all 8-10 questions and answers visible",
+    "Footer renders at bottom with all links, social icons, copyright, and CTA button",
+    "All links in landing page navigate to correct routes (/register, /login, etc.)",
+    "Page is fully responsive: readable and functional at 375px, 768px, 1920px widths",
+    "All images/icons load correctly (use Lucide icons for consistency)"
+  ],
+  "verification": [
+    "Run `npm run dev` → navigate to http://localhost:5173 → expect landing page displays with all sections",
+    "Test Hero CTA buttons: click 'Create Your Portfolio' → expect redirect to /register; click 'Explore Examples' → expect navigation to demo portfolio",
+    "Test HowItWorks: view on mobile (375px viewport) → expect vertical layout; view on desktop → expect cleaner layout",
+    "Test Features: verify all 6 cards display; verify grid changes from 3-col (desktop) to 1-col (mobile)",
+    "Test TemplateGallery: verify 3 templates visible; click 'Use Template' → expect navigation to /register with template pre-selected (future enhancement)",
+    "Test FAQ: click question header → expect answer expands; click again → expect collapses",
+    "Test Footer: verify all links are clickable; click CTA button → expect /register",
+    "Test responsive: use browser dev tools to test viewport sizes 375px, 768px, 1920px → expect page readable and functional at each size",
+    "Run `npm run build` → expect build succeeds, landing page bundled correctly"
+  ],
+  "blocked_reason": null,
+  "findings": "No findings yet; awaiting implementation."
+}

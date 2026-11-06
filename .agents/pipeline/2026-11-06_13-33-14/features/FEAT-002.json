@@ -1,0 +1,42 @@
+{
+  "id": "FEAT-002",
+  "type": "feat",
+  "description": "Migrate project from JavaScript to TypeScript with strict mode enabled. This includes: (1) creating tsconfig.json and tsconfig.node.json with strict compiler options, (2) renaming all .jsx and .js files to .tsx and .ts, (3) adding missing npm dependencies (react-hook-form, zod, @hookform/resolvers, @tanstack/react-query, sonner, qrcode, vitest, @testing-library/react, happy-dom), (4) creating Vitest configuration and test setup, (5) creating global types file with interfaces for all entities.",
+  "status": "completed",
+  "steps": [
+    "Create tsconfig.json in project root with strict mode enabled: target ES2020, lib ES2020+DOM, module ESNext, strict: true, noImplicitAny: true, strictNullChecks: true, noUnusedLocals: true, noUnusedParameters: true, noImplicitReturns: true, jsx: react-jsx. Also create tsconfig.node.json for Vite config.",
+    "Update package.json: (a) add dev dependencies: typescript@^5.3.0, vitest@^1.0.0, @testing-library/react@^14.1.0, @testing-library/user-event@^14.5.0, @testing-library/jest-dom@^6.1.5, happy-dom@^12.10.0; (b) add prod dependencies: react-hook-form@^7.48.0, zod@^3.22.4, @hookform/resolvers@^3.3.4, @tanstack/react-query@^5.28.0, sonner@^1.2.0, qrcode@^1.5.3. (c) Update scripts: add 'test': 'vitest' and 'test:ui': 'vitest --ui' and 'test:coverage': 'vitest --coverage'.",
+    "Create vitest.config.ts in project root: set environment to happy-dom, globals to true, setupFiles to ['./tests/setup.ts'], configure path alias '@': './src'.",
+    "Create tests/setup.ts: import @testing-library/jest-dom, set up afterEach cleanup, mock Supabase auth and storage methods as vi.fn().",
+    "Rename all .jsx files to .tsx: src/main.jsx → main.tsx, src/components/AuthProvider.jsx → AuthProvider.tsx, src/components/Layout.jsx → Layout.tsx, src/components/Protected.jsx → Protected.tsx, src/pages/*.jsx → src/pages/*.tsx.",
+    "Rename src/lib files: src/lib/supabase.js → supabase.ts, src/lib/portfolio.js → portfolio.ts, src/index.css stays as-is.",
+    "Create src/types/index.ts with TypeScript interfaces: Profile (with all extended fields from FEAT-001), Project, Education, Certification, Skill, Experience, Achievement, SocialLink, Portfolio (container for all data), and enum types: TemplateType ('minimal-professional' | 'modern-developer' | 'creative-portfolio'), SkillCategory, EmploymentType, AchievementCategory, SocialPlatform, ThemePreference, ResumePrivacy.",
+    "Migrate src/lib/supabase.ts: keep existing logic, add type annotations. Export supabase as const, add generic types for queries if using TypeScript client.",
+    "Migrate src/lib/portfolio.ts: add type annotations to collections object and all exported constants.",
+    "Migrate src/components/AuthProvider.tsx: add React.FC type, create AuthContextType interface with user: User | null, loading: boolean, error: string | null, signUp, signIn, signOut, signInWithOAuth methods. Add type annotations to all state variables and functions.",
+    "Migrate src/components/Layout.tsx and Protected.tsx: add component type annotations and proper typing for children props.",
+    "Migrate all page components in src/pages/: add React.FC<{}> type annotation, type all state variables and function parameters, import types from src/types/index.ts."
+  ],
+  "acceptance_criteria": [
+    "Running `npx tsc --noEmit` returns zero errors in strict mode",
+    "Running `npm install` succeeds; all new dependencies appear in node_modules and package-lock.json",
+    "Running `npm run build` succeeds; Vite outputs dist/ folder without errors or TypeScript warnings",
+    "All .jsx and .js files renamed to .tsx and .ts respectively",
+    "src/types/index.ts exports all required interfaces and can be imported in components without type errors",
+    "vitest.config.ts exists and can be parsed; running `npm run test` initializes Vitest without config errors",
+    "tests/setup.ts exists and Vitest loads it before running tests",
+    "Compiler finds zero unused variables (noUnusedLocals enforced)",
+    "All React components pass React.FC typing; props are properly typed"
+  ],
+  "verification": [
+    "Run `npx tsc --noEmit` → expect 0 errors",
+    "Run `npm run build` → expect 'dist' folder created, build completes in <30s, no TypeScript errors in stderr",
+    "Run `npm run dev` → expect dev server starts on :5173, pages load in browser (may have runtime errors if missing backend data, but TypeScript compilation succeeds)",
+    "Run `npm run test` → expect Vitest initializes and can discover test files (even if no tests exist yet)",
+    "Check src/types/index.ts imports in a test file: create tests/types.test.ts with `import type { Profile } from '@/types'`, run test → expect TypeScript accepts types",
+    "List files in src/components and src/pages: verify all are .tsx (not .jsx)",
+    "Count imports of @/types throughout codebase: expect >0 (should be used in AuthProvider and pages)"
+  ],
+  "blocked_reason": null,
+  "findings": "TypeScript migration completed successfully. All .jsx/.js files renamed to .tsx/.ts with strict mode enabled. Created tsconfig.json (ES2021 target, strict: true), tsconfig.node.json for Vite config, vitest.config.ts with happy-dom environment, and tests/setup.ts with Supabase mocks. Created comprehensive src/types/index.ts with Profile, Project, Education, Certification, Skill, Experience, Achievement, SocialLink, Portfolio interfaces and enums (TemplateType, SkillCategory, EmploymentType, AchievementCategory, SocialPlatform, ThemePreference, ResumePrivacy). Added all dependencies: react-hook-form, zod, @hookform/resolvers, @tanstack/react-query, sonner, qrcode, vitest, @testing-library packages, and @types packages. Zero TypeScript errors in strict mode. Build succeeds with dist/ folder created. Vitest initializes correctly with test setup. All acceptance criteria met."
+}

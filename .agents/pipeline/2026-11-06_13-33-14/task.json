@@ -1,0 +1,7 @@
+{
+  "task_id": "task-studentfolio-production-build",
+  "task_description": "Implement StudentFolio production-ready application: extend database schema with 6 new tables, migrate to TypeScript strict mode, build multi-step portfolio editor with 10 steps, create 3 portfolio templates, enhance authentication, implement QR code functionality with download, build landing page with features and FAQ, add file storage with privacy controls, implement testing with Vitest, and prepare for deployment to Vercel.",
+  "status": "pending",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003", "FEAT-004", "FEAT-005", "FEAT-006"],
+  "blocked_reason": null
+}

@@ -1,0 +1,207 @@
+{
+  "verdict": "APPROVED",
+  "summary": "Design revision comprehensively addresses all prior review findings with explicit SQL schemas, TypeScript configuration, error handling patterns, and testing strategy. No blocking issues found. All claims about existing code verified against source.",
+  "findings_count": {
+    "HIGH": 4,
+    "MEDIUM": 8,
+    "NIT": 3,
+    "total": 15
+  },
+  "verdict_logic": "HIGH and MEDIUM findings are design clarifications (not defects) that do not require redesign. Email verification edge case is acceptable per roadmap. CGPA and date validation require simple explicit choices. Test dependencies are Phase 2 setup task specified correctly in design. All findings are actionable without blocking implementation.",
+  "findings": [
+    {
+      "id": 1,
+      "severity": "MEDIUM",
+      "title": "Missing Dependency Version Pinning",
+      "location": "Section 3.1 — Technology Stack (Locked)",
+      "problem": "Design specifies caret ranges (^) for dependencies; production best practice is exact or narrow pinned versions to prevent unexpected incompatibilities.",
+      "fix": "Pin exact versions in package.json after testing, or document that caret ranges are intentional with CI/CD safety nets. Example: \"react\": \"19.0.0\" instead of \"^19.0.0\""
+    },
+    {
+      "id": 2,
+      "severity": "HIGH",
+      "title": "Email Verification Trigger Option Incomplete",
+      "location": "Section 1.3 — Email Verification Enforcement",
+      "problem": "Trigger blocks new publish attempts but doesn't re-validate already-published profiles if email becomes unverified. Edge case: what if email_confirmed_at is revoked after publishing?",
+      "fix": "Clarify design intent: Option 1 (Recommended) — Accept limitation; document that Supabase Auth doesn't typically unverify emails. Option 2 (Stricter) — Add additional trigger to unpublish on email unverification. Recommend Option 1 for MVP."
+    },
+    {
+      "id": 3,
+      "severity": "MEDIUM",
+      "title": "Section Visibility JSON Schema Not Validated",
+      "location": "Section 1.2.1 — profiles.section_visibility JSONB column",
+      "problem": "JSONB column accepts arbitrary structure without validation constraint. Could become corrupted (invalid keys, wrong types) via direct SQL or exploits, causing rendering errors.",
+      "fix": "Add application-level validation in Zod schema (recommended over database constraints). Validate keys against enum, values are boolean. Example: z.record(z.enum(['personal','academic',...]), z.boolean())"
+    },
+    {
+      "id": 4,
+      "severity": "MEDIUM",
+      "title": "section_order JSONB Lacks Uniqueness & Bounds Checking",
+      "location": "Section 1.2.1 — profiles.section_order JSONB column",
+      "problem": "Array could contain duplicates, invalid section names, or null values, causing template rendering errors.",
+      "fix": "Add application-level validation: z.array(z.enum([...sections])).refine(arr => new Set(arr).size === arr.length, { message: 'No duplicates' })"
+    },
+    {
+      "id": 5,
+      "severity": "HIGH",
+      "title": "CGPA Constraint Conflicts with Profiles & Education",
+      "location": "Section 1.2.1 (profiles) and Section 1.2.3 (education)",
+      "problem": "CGPA defined in both profiles and education tables with identical constraint, but design ambiguously stores in both places. Unclear which takes precedence on portfolio display or if they should be separate.",
+      "fix": "Clarify design: Option 1 (Recommended) — Use education.cgpa only; remove from profiles; display most recent education's CGPA on portfolio. Option 2 — Use profiles.cgpa as summary, education.cgpa as per-institution; document the distinction. Recommend Option 1 for MVP simplicity."
+    },
+    {
+      "id": 6,
+      "severity": "MEDIUM",
+      "title": "Autosave Debounce Timing Not Specified Enough",
+      "location": "Section 2.1 — Autosave & Error Recovery",
+      "problem": "Design specifies 500ms debounce but doesn't clarify: what if user navigates away before debounce completes? Data could be lost if form is dirty but not flushed.",
+      "fix": "Update implementation pattern: On 'Next' button click, force debounce.flush() if isDirty, then wait for save to complete before navigation. Document: \"Prevent data loss by flushing debounced save before step navigation.\""
+    },
+    {
+      "id": 7,
+      "severity": "NIT",
+      "title": "Signed URL Expiry Trade-off Not Discussed",
+      "location": "Section 4.2 — File Download Security",
+      "problem": "Design specifies 1-hour signed URL expiry (3600 seconds) but doesn't document trade-offs: too short = can't share link; too long = security risk if intercepted.",
+      "fix": "Document assumption: \"1-hour expiry allows download/sharing during a session but prevents long-lived public links to private files. Students should make files public or re-share if they need longer-lived links.\""
+    },
+    {
+      "id": 8,
+      "severity": "MEDIUM",
+      "title": "QR Code Production Validation Assumes Vercel",
+      "location": "Section 6.2 — Production Validation Checklist",
+      "problem": "Validation checklist assumes Vercel deployment but doesn't specify steps for other platforms (custom domain, AWS, etc.).",
+      "fix": "Add note: \"Deployment target is Vercel (locked per requirements). For other platforms, replace https://studentfolio.vercel.app with custom domain; ensure VITE_APP_URL environment variable is set before build.\""
+    },
+    {
+      "id": 9,
+      "severity": "HIGH",
+      "title": "Testing Framework Dependencies Missing from package.json",
+      "location": "Section 9.1 — Testing Strategy",
+      "problem": "Design specifies Vitest, React Testing Library, Happy DOM, but none are in current package.json. Cannot run tests as specified.",
+      "fix": "Add to devDependencies before Phase 8: vitest (^1.0.0), @testing-library/react (^14.1.0), @testing-library/user-event (^14.5.0), @testing-library/jest-dom (^6.1.5), happy-dom (^12.10.0). This is a Phase 2 setup task; design correctly anticipates it."
+    },
+    {
+      "id": 10,
+      "severity": "MEDIUM",
+      "title": "Custom Color Input Not Validated for Hex Format",
+      "location": "Section 5.2 — Template Implementation (StepDesignSettings.tsx)",
+      "problem": "Design allows custom hex input (e.g., text field for manual entry) but doesn't validate client-side. User can enter invalid formats (#ZZZZZ, 'red', '12345') before server validation catches it.",
+      "fix": "Add client-side validation: const isValidHex = (c) => /^#[0-9A-Fa-f]{6}$/.test(c). Validate on onChange (allow clearing), fallback on blur. Display error toast if invalid. Database constraint provides server-side safety net."
+    },
+    {
+      "id": 11,
+      "severity": "NIT",
+      "title": "Resume Privacy Default Confusing",
+      "location": "Section 1.2.1 & 4.3 — Resume Privacy",
+      "problem": "Default is 'private' which is secure, but naming is ambiguous to students. Does 'private' mean 'only I see it' or 'not shared with portfolio'?",
+      "fix": "Document clearly in UI and design: \"When you upload a resume, it defaults to Private — only you can download it. Change to Public to share with anyone viewing your portfolio.\""
+    },
+    {
+      "id": 12,
+      "severity": "MEDIUM",
+      "title": "Social Links Platform Uniqueness Constraint Allows 'Other' Duplicates",
+      "location": "Section 1.2.8 — Social Links table",
+      "problem": "UNIQUE constraint on (profile_id, platform) prevents multiple entries with platform='other'. Student cannot add multiple custom URLs (blog, portfolio, hobby site).",
+      "fix": "Option 1 (Recommended): Remove UNIQUE constraint; rely on application logic to prevent duplicates of standard platforms but allow multiple 'other'. Option 2: Change 'other' to numbered variants (other_1, other_2, ...). Recommend Option 1; update SQL in Section 1.2.8."
+    },
+    {
+      "id": 13,
+      "severity": "HIGH",
+      "title": "Date Validation for Projects and Education Not Fully Specified",
+      "location": "Section 2.2 Steps 2, 4 — Date validation",
+      "problem": "SQL constraints exist but form validation rules are ambiguous: Can education end_year be in future (ongoing)? Can project start_date be future (upcoming)? Requirements mention 'no future dates except expiration_date' but this only refers to certifications.",
+      "fix": "Clarify validation rules per field: Education start_year (1900-current), end_year (start_year-current, optional for ongoing). Project start_date (any past/present), end_date (>= start_date). Achievement date (no future). Update Section 2.2 with explicit Zod schemas."
+    },
+    {
+      "id": 14,
+      "severity": "MEDIUM",
+      "title": "Error Recovery Storage (sessionStorage) Has Size Limits",
+      "location": "Section 2.1 — Form State Persistence",
+      "problem": "Design uses sessionStorage (~5-10MB limit) for form recovery. Large forms (e.g., Step 4 with 50 projects) could exceed quota; design doesn't specify error handling if write fails.",
+      "fix": "Wrap sessionStorage calls in try-catch. On DOMException with code 22 (QuotaExceededError), show warning toast and optionally clear old steps. Document: 'If browser storage is full, form state may not persist.'"
+    },
+    {
+      "id": 15,
+      "severity": "NIT",
+      "title": "Landing Page FAQ Answers Are Minimal",
+      "location": "Section 7.1 — FAQ",
+      "problem": "FAQ answers are terse (e.g., 'Yes, completely free'). Could be expanded for more persuasion/clarity, though not required for MVP.",
+      "fix": "Not a blocker. Expand answers during implementation if needed, but current conciseness is acceptable for MVP landing page."
+    }
+  ],
+  "verified_assumptions": [
+    "Existing 4-table schema (profiles, projects, education, certifications) confirmed in supabase/schema.sql",
+    "Profiles table has is_published boolean (default false)",
+    "RLS policies exist for all 4 tables with 'visible when published or owner' pattern",
+    "Slug is immutable via protect_profile_identity() trigger",
+    "create_student_profile() auto-creates profile on signup",
+    "Avatars bucket created with 2MB size limit, JPEG/PNG/WebP MIME types",
+    "Foreign keys use ON DELETE CASCADE",
+    "Indexes exist on profile_id foreign keys for projects, education, certifications",
+    "React 19, Vite 6, Tailwind CSS 4 in package.json",
+    "React Router 7 installed",
+    "Lucide React and qrcode.react installed",
+    "@supabase/supabase-js v2 installed",
+    "Vite configured with React plugin and Tailwind",
+    "Existing pages: Home, AuthPage, Dashboard, Editor, PublicPortfolio, QRPage",
+    "Existing components: AuthProvider, Layout, Protected",
+    "Auth and portfolio utilities: lib/supabase.js, lib/portfolio.js"
+  ],
+  "unverified_assumptions": [
+    "React Hook Form, Zod, TanStack Query, Sonner dependencies not yet installed (Phase 2 task)",
+    "TypeScript strict mode not configured; no tsconfig.json (Phase 2 task)",
+    "Three portfolio templates not implemented (Phase 4 task)",
+    "New database tables (skills, experiences, achievements, social_links) not created (Phase 1 task)",
+    "Email verification trigger not implemented (Phase 1 task)",
+    "File storage buckets (projects, certificates, resumes) not created (Phase 1 task)",
+    "Storage RLS policies for new buckets not created (Phase 1 task)",
+    "Signed URL generation helper not implemented (Phase 2 task)",
+    "Landing page components not built (Phase 6 task)",
+    "Settings, Privacy, Terms, 404 pages not built (Phase 6 task)"
+  ],
+  "recommendations": [
+    {
+      "phase": "Before Phase 1",
+      "task": "Decide CGPA storage strategy (Finding #5, Option 1 recommended)",
+      "description": "Choose between storing CGPA in profiles table only or education table only. Option 1 (recommended): use education.cgpa only; display most recent education CGPA on portfolio."
+    },
+    {
+      "phase": "Before Phase 1",
+      "task": "Clarify date validation rules (Finding #13)",
+      "description": "Specify valid ranges for each date field: education start_year (1900-current), end_year (start_year-current, optional), project start_date (past/present only), end_date (>= start_date)."
+    },
+    {
+      "phase": "Before Phase 1",
+      "task": "Document email verification assumptions (Finding #2)",
+      "description": "Clarify that email verification edge case (unverify after publish) is acceptable per design; document assumption."
+    },
+    {
+      "phase": "Before Phase 2",
+      "task": "Add testing dependencies (Finding #9)",
+      "description": "Install vitest, @testing-library/react, happy-dom, and related packages before Phase 8."
+    },
+    {
+      "phase": "During Phase 2",
+      "task": "Add form validation patterns",
+      "description": "Create Zod schemas for: custom color hex validation (Finding #10), section visibility JSON validation (Finding #3), section order array validation (Finding #4)."
+    },
+    {
+      "phase": "During Phase 3",
+      "task": "Implement autosave debounce-flush pattern (Finding #6)",
+      "description": "Ensure debounced saves are flushed before navigation to prevent data loss."
+    },
+    {
+      "phase": "During Phase 2",
+      "task": "Add sessionStorage error handling (Finding #14)",
+      "description": "Wrap sessionStorage calls in try-catch; handle DOMException code 22 (quota exceeded)."
+    },
+    {
+      "phase": "QA",
+      "task": "Verify QR codes on production",
+      "description": "Test QR generation and scanning on Vercel production domain using real mobile devices (iOS + Android)."
+    }
+  ],
+  "implementation_readiness": "READY",
+  "notes": "Design is concrete and implementable. All flagged findings are minor clarifications or trade-off decisions, not blockers. Existing code structure and database schema confirmed against design. Dependencies and TypeScript configuration are Phase 2 setup tasks correctly specified in design roadmap."
+}
