@@ -19,13 +19,13 @@ const schema = z.object({
   degree: z.string().min(2, 'Degree required'),
   department: z.string().optional().default(''),
   specialization: z.string().optional().default(''),
-  start_year: z.number().int().min(1900).max(2100, 'Valid year required'),
-  end_year: z.number().int().min(1900).max(2100, 'Valid year required'),
+  startYear: z.number().int().min(1900).max(2100, 'Valid year required'),
+  endYear: z.number().int().min(1900).max(2100, 'Valid year required'),
   cgpa: z.number().optional().refine((val) => !val || (val >= 0 && val <= 4), 'CGPA must be between 0 and 4'),
   description: z.string().optional().default(''),
-}).refine((data) => data.end_year >= data.start_year, {
+}).refine((data) => data.endYear >= data.startYear, {
   message: 'End year must be after start year',
-  path: ['end_year'],
+  path: ['endYear'],
 })
 
 type FormData = z.infer<typeof schema>
@@ -37,7 +37,6 @@ interface StepEducationProps {
 export const StepEducation: FC<StepEducationProps> = ({ onComplete }) => {
   const { user } = useAuth()
   const [entries, setEntries] = useState<Education[]>([])
-  const [isLoading, setIsLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
 
@@ -66,8 +65,6 @@ export const StepEducation: FC<StepEducationProps> = ({ onComplete }) => {
         setEntries(data || [])
       } catch (err: any) {
         toast.error('Failed to load education: ' + err.message)
-      } finally {
-        setIsLoading(false)
       }
     }
 
@@ -78,21 +75,33 @@ export const StepEducation: FC<StepEducationProps> = ({ onComplete }) => {
     if (!user) return
 
     try {
+      const payload = {
+        institution: data.institution,
+        degree: data.degree,
+        department: data.department || '',
+        specialization: data.specialization || '',
+        start_year: data.startYear,
+        end_year: data.endYear,
+        cgpa: data.cgpa || null,
+        description: data.description || '',
+        profile_id: user.id,
+      }
+
       if (editingId) {
         const { error } = await supabase
           .from('education')
-          .update({ ...data, profile_id: user.id })
+          .update(payload)
           .eq('id', editingId)
           .eq('profile_id', user.id)
 
         if (error) throw error
-        setEntries(entries.map(e => e.id === editingId ? { ...data, id: editingId, profile_id: user.id } as Education : e))
+        setEntries(entries.map(e => e.id === editingId ? { ...data, id: editingId } : e))
         toast.success('Education updated')
         setEditingId(null)
       } else {
         const { data: newEntry, error } = await supabase
           .from('education')
-          .insert([{ ...data, profile_id: user.id }])
+          .insert([payload])
           .select()
           .single()
 
@@ -137,7 +146,7 @@ export const StepEducation: FC<StepEducationProps> = ({ onComplete }) => {
               <div>
                 <h4 className="font-semibold text-slate-100">{entry.degree}</h4>
                 <p className="text-slate-300">{entry.institution}</p>
-                <p className="text-sm text-slate-400">{entry.start_year} - {entry.end_year}</p>
+                <p className="text-sm text-slate-400">{entry.startYear} - {entry.endYear}</p>
                 {entry.cgpa && <p className="text-sm text-slate-400">CGPA: {entry.cgpa}</p>}
                 {entry.description && <p className="text-sm text-slate-400 mt-2">{entry.description}</p>}
               </div>
@@ -186,18 +195,18 @@ export const StepEducation: FC<StepEducationProps> = ({ onComplete }) => {
               </div>
 
               <div className="grid grid-cols-3 gap-4">
-                <FormField label="Start Year" error={errors.start_year?.message} required>
+                <FormField label="Start Year" error={errors.startYear?.message} required>
                   <Input
-                    {...register('start_year', { valueAsNumber: true })}
+                    {...register('startYear', { valueAsNumber: true })}
                     type="number"
                     min="1900"
                     max="2100"
                   />
                 </FormField>
 
-                <FormField label="End Year" error={errors.end_year?.message} required>
+                <FormField label="End Year" error={errors.endYear?.message} required>
                   <Input
-                    {...register('end_year', { valueAsNumber: true })}
+                    {...register('endYear', { valueAsNumber: true })}
                     type="number"
                     min="1900"
                     max="2100"

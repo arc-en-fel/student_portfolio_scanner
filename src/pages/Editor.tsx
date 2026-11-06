@@ -129,7 +129,7 @@ const Editor: FC = () => {
 
   const isStepComplete = (step: number): boolean => {
     if (step === 0) {
-      return !!profile.full_name
+      return !!profile.fullName
     }
     return stepCompletion[step] || false
   }
@@ -146,11 +146,11 @@ const Editor: FC = () => {
         <StepPersonalInfo
           onComplete={() => markStepComplete(0)}
           initialData={{
-            full_name: profile.full_name,
+            full_name: profile.fullName,
             headline: profile.headline || '',
             bio: profile.bio || '',
-            professional_email: profile.professional_email || '',
-            personal_website: profile.personal_website || '',
+            professional_email: profile.professionalEmail || '',
+            personal_website: profile.personalWebsite || '',
             city: profile.city || '',
             state: profile.state || '',
             country: profile.country || '',

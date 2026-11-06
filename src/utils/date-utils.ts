@@ -51,10 +51,10 @@ export function formatDate(date: string | Date, format: 'long' | 'short' | 'nume
   }
 
   const options: Intl.DateTimeFormatOptions = {
-    long: { year: 'numeric', month: 'long', day: 'numeric' },
-    short: { year: '2-digit', month: 'short', day: 'numeric' },
-    numeric: { year: 'numeric', month: '2-digit', day: '2-digit' },
-  }[format] || { year: 'numeric', month: 'long', day: 'numeric' }
+    long: { year: 'numeric' as const, month: 'long' as const, day: 'numeric' as const },
+    short: { year: '2-digit' as const, month: 'short' as const, day: 'numeric' as const },
+    numeric: { year: 'numeric' as const, month: '2-digit' as const, day: '2-digit' as const },
+  }[format] || { year: 'numeric' as const, month: 'long' as const, day: 'numeric' as const }
 
   return new Intl.DateTimeFormat('en-US', options).format(dateObj)
 }

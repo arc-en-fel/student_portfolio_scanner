@@ -17,12 +17,12 @@ import { Trash2, Star } from 'lucide-react'
 const projectSchema = z.object({
   title: z.string().min(2, 'Project title required'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
-  tech_stack: z.string().min(1, 'At least one technology required'),
+  techStack: z.string().min(1, 'At least one technology required'),
   category: z.string().optional().default(''),
-  github_url: z.string().url('Valid URL required').optional().or(z.literal('')),
-  live_url: z.string().url('Valid URL required').optional().or(z.literal('')),
-  start_date: z.string().optional().default(''),
-  end_date: z.string().optional().default(''),
+  githubUrl: z.string().url('Valid URL required').optional().or(z.literal('')),
+  liveUrl: z.string().url('Valid URL required').optional().or(z.literal('')),
+  startDate: z.string().optional().default(''),
+  endDate: z.string().optional().default(''),
   featured: z.boolean().default(false),
 })
 
@@ -35,7 +35,6 @@ interface StepProjectsProps {
 export const StepProjects: FC<StepProjectsProps> = ({ onComplete }) => {
   const { user } = useAuth()
   const [projects, setProjects] = useState<Project[]>([])
-  const [isLoading, setIsLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [uploadingImage, setUploadingImage] = useState(false)
@@ -69,8 +68,6 @@ export const StepProjects: FC<StepProjectsProps> = ({ onComplete }) => {
         setProjects(data || [])
       } catch (err: any) {
         toast.error('Failed to load projects: ' + err.message)
-      } finally {
-        setIsLoading(false)
       }
     }
 
@@ -115,9 +112,9 @@ export const StepProjects: FC<StepProjectsProps> = ({ onComplete }) => {
     if (!user) return
 
     try {
-      const techStackArray = data.tech_stack
+      const techStackArray = data.techStack
         .split(',')
-        .map((t) => t.trim())
+        .map((t: string) => t.trim())
         .filter(Boolean)
 
       const { data: newProject, error } = await supabase
@@ -194,9 +191,9 @@ export const StepProjects: FC<StepProjectsProps> = ({ onComplete }) => {
               className={featured ? 'border-teal-500 bg-teal-500/5' : ''}
             >
               <div className="flex gap-6">
-                {project.image_url && (
+                {project.imageUrl && (
                   <img
-                    src={project.image_url}
+                    src={project.imageUrl}
                     alt={project.title}
                     className="w-24 h-24 rounded-lg object-cover"
                   />
@@ -223,9 +220,9 @@ export const StepProjects: FC<StepProjectsProps> = ({ onComplete }) => {
                     </button>
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {(project.tech_stack || []).map((tech, idx) => (
+                    {(project.techStack || []).map((tech: string) => (
                       <span
-                        key={idx}
+                        key={tech}
                         className="text-xs bg-slate-800 text-slate-300 px-2 py-1 rounded"
                       >
                         {tech}
@@ -298,11 +295,11 @@ export const StepProjects: FC<StepProjectsProps> = ({ onComplete }) => {
 
               <FormField
                 label="Technology Stack (comma-separated)"
-                error={errors.tech_stack?.message}
+                error={errors.techStack?.message}
                 required
               >
                 <Input
-                  {...register('tech_stack')}
+                  {...register('techStack')}
                   placeholder="React, Node.js, PostgreSQL"
                 />
               </FormField>
@@ -315,17 +312,17 @@ export const StepProjects: FC<StepProjectsProps> = ({ onComplete }) => {
               </FormField>
 
               <div className="grid md:grid-cols-2 gap-4">
-                <FormField label="GitHub URL" error={errors.github_url?.message}>
+                <FormField label="GitHub URL" error={errors.githubUrl?.message}>
                   <Input
-                    {...register('github_url')}
+                    {...register('githubUrl')}
                     type="url"
                     placeholder="https://github.com/username/repo"
                   />
                 </FormField>
 
-                <FormField label="Live URL" error={errors.live_url?.message}>
+                <FormField label="Live URL" error={errors.liveUrl?.message}>
                   <Input
-                    {...register('live_url')}
+                    {...register('liveUrl')}
                     type="url"
                     placeholder="https://yourproject.com"
                   />
@@ -333,16 +330,16 @@ export const StepProjects: FC<StepProjectsProps> = ({ onComplete }) => {
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
-                <FormField label="Start Date" error={errors.start_date?.message}>
+                <FormField label="Start Date" error={errors.startDate?.message}>
                   <Input
-                    {...register('start_date')}
+                    {...register('startDate')}
                     type="date"
                   />
                 </FormField>
 
-                <FormField label="End Date" error={errors.end_date?.message}>
+                <FormField label="End Date" error={errors.endDate?.message}>
                   <Input
-                    {...register('end_date')}
+                    {...register('endDate')}
                     type="date"
                   />
                 </FormField>

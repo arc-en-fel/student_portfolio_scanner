@@ -46,7 +46,6 @@ interface StepExperienceProps {
 export const StepExperience: FC<StepExperienceProps> = ({ onComplete }) => {
   const { user } = useAuth()
   const [experiences, setExperiences] = useState<Experience[]>([])
-  const [isLoading, setIsLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
 
   const {
@@ -77,8 +76,6 @@ export const StepExperience: FC<StepExperienceProps> = ({ onComplete }) => {
         setExperiences(data || [])
       } catch (err: any) {
         toast.error('Failed to load experience: ' + err.message)
-      } finally {
-        setIsLoading(false)
       }
     }
 
@@ -158,7 +155,7 @@ export const StepExperience: FC<StepExperienceProps> = ({ onComplete }) => {
                       <p className="text-xs text-slate-400">{exp.location}</p>
                     )}
                     <p className="text-xs text-slate-500 capitalize mt-1">
-                      {exp.employment_type.replace('-', ' ')}
+                      {exp.employmentType.replace('-', ' ')}
                     </p>
                     {exp.description && (
                       <p className="text-sm text-slate-400 mt-2">{exp.description}</p>

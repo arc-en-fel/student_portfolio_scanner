@@ -2,7 +2,6 @@ import { FC, useEffect, useState } from 'react'
 import { WizardStep } from '../WizardStep'
 import { Button } from '../../ui/Button'
 import { Card } from '../../ui/Card'
-import { Input } from '../../ui/Input'
 import { FormField } from '../../form/FormField'
 import { toast } from 'sonner'
 import { supabase } from '../../../lib/supabase'
@@ -32,7 +31,6 @@ export const StepDesignSettings: FC<StepDesignSettingsProps> = ({ onComplete, pr
   const [template, setTemplate] = useState<TemplateType>(TemplateType.MINIMAL_PROFESSIONAL)
   const [accentColor, setAccentColor] = useState('#4FD1C5')
   const [customColor, setCustomColor] = useState('#4FD1C5')
-  const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
@@ -56,8 +54,6 @@ export const StepDesignSettings: FC<StepDesignSettingsProps> = ({ onComplete, pr
         }
       } catch (err: any) {
         toast.error('Failed to load design settings: ' + err.message)
-      } finally {
-        setIsLoading(false)
       }
     }
 
@@ -156,7 +152,7 @@ export const StepDesignSettings: FC<StepDesignSettingsProps> = ({ onComplete, pr
               {predefinedColors.map((color) => (
                 <button
                   key={color.value}
-                  onClick={() => setAccentColor(color.value) || setCustomColor(color.value)}
+                  onClick={() => { setAccentColor(color.value); setCustomColor(color.value) }}
                   className="w-full aspect-square rounded-lg border-2 transition-all hover:scale-110"
                   style={{
                     backgroundColor: color.value,

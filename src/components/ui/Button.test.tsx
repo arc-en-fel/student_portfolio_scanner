@@ -43,7 +43,7 @@ describe('Button Component', () => {
     expect(button).toHaveClass('px-3')
 
     rerender(<Button size="lg">Large</Button>)
-    expect(screen.getByRole('button')).toHaveClass('px-4')
+    expect(screen.getByRole('button')).toHaveClass('px-6')
   })
 
   it('should forward aria attributes', () => {

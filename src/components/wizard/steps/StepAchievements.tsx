@@ -13,7 +13,7 @@ import { toast } from 'sonner'
 import { supabase } from '../../../lib/supabase'
 import { useAuth } from '../../AuthProvider'
 import { Achievement, AchievementCategory } from '../../../types'
-import { Trash2, Trophy } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 
 const achievementCategories: SelectOption[] = Object.values(AchievementCategory).map(cat => ({
   label: cat.charAt(0).toUpperCase() + cat.slice(1).replace(/_/g, ' '),
@@ -25,7 +25,7 @@ const achievementSchema = z.object({
   category: z.string().min(1, 'Category required'),
   date: z.string().min(1, 'Date required'),
   description: z.string().optional().default(''),
-  organization_name: z.string().optional().default(''),
+  organizationName: z.string().optional().default(''),
   url: z.string().url('Valid URL required').optional().or(z.literal('')),
 })
 
@@ -38,7 +38,6 @@ interface StepAchievementsProps {
 export const StepAchievements: FC<StepAchievementsProps> = ({ onComplete }) => {
   const { user } = useAuth()
   const [achievements, setAchievements] = useState<Achievement[]>([])
-  const [isLoading, setIsLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
 
   const {
@@ -66,8 +65,6 @@ export const StepAchievements: FC<StepAchievementsProps> = ({ onComplete }) => {
         setAchievements(data || [])
       } catch (err: any) {
         toast.error('Failed to load achievements: ' + err.message)
-      } finally {
-        setIsLoading(false)
       }
     }
 
@@ -78,9 +75,19 @@ export const StepAchievements: FC<StepAchievementsProps> = ({ onComplete }) => {
     if (!user) return
 
     try {
+      const payload = {
+        title: data.title,
+        category: data.category,
+        date: data.date,
+        description: data.description || '',
+        organization_name: data.organizationName || '',
+        url: data.url || '',
+        profile_id: user.id,
+      }
+
       const { data: newAch, error } = await supabase
         .from('achievements')
-        .insert([{ ...data, profile_id: user.id }])
+        .insert([payload])
         .select()
         .single()
 
@@ -153,8 +160,8 @@ export const StepAchievements: FC<StepAchievementsProps> = ({ onComplete }) => {
                         month: 'short',
                       })}
                     </p>
-                    {achievement.organization_name && (
-                      <p className="text-xs text-slate-400">{achievement.organization_name}</p>
+                    {achievement.organizationName && (
+                      <p className="text-xs text-slate-400">{achievement.organizationName}</p>
                     )}
                     {achievement.description && (
                       <p className="text-sm text-slate-400 mt-2">{achievement.description}</p>
@@ -208,9 +215,9 @@ export const StepAchievements: FC<StepAchievementsProps> = ({ onComplete }) => {
                 />
               </FormField>
 
-              <FormField label="Organization (optional)" error={errors.organization_name?.message}>
+              <FormField label="Organization (optional)" error={errors.organizationName?.message}>
                 <Input
-                  {...register('organization_name')}
+                  {...register('organizationName')}
                   placeholder="e.g., TechCrunch, HackerRank"
                 />
               </FormField>

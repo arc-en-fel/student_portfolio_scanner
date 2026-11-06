@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect } from 'react'
+import { FC } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -6,9 +6,6 @@ import { WizardStep } from '../WizardStep'
 import { Input } from '../../ui/Input'
 import { Textarea } from '../../ui/Textarea'
 import { FormField } from '../../form/FormField'
-import { toast } from 'sonner'
-import { supabase } from '../../../lib/supabase'
-import { useAuth } from '../../AuthProvider'
 
 const schema = z.object({
   full_name: z.string().min(2, 'Full name required'),
@@ -29,56 +26,15 @@ interface StepPersonalInfoProps {
 }
 
 export const StepPersonalInfo: FC<StepPersonalInfoProps> = ({ onComplete, initialData }) => {
-  const { user } = useAuth()
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
-    watch,
-    setValue,
+    formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     mode: 'onBlur',
     defaultValues: initialData,
   })
-
-  const formData = watch()
-
-  // Auto-save on blur
-  const handleBlur = useCallback(async () => {
-    if (!user || !isValid) return
-
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .upsert(
-          {
-            id: user.id,
-            full_name: formData.full_name,
-            headline: formData.headline,
-            bio: formData.bio,
-            professional_email: formData.professional_email,
-            personal_website: formData.personal_website,
-            city: formData.city,
-            state: formData.state,
-            country: formData.country,
-          },
-          { onConflict: 'id' }
-        )
-        .select()
-        .single()
-
-      if (error) {
-        toast.error('Failed to save: ' + error.message)
-        return
-      }
-
-      toast.success('Saved')
-      onComplete(formData)
-    } catch (err: any) {
-      toast.error(err.message)
-    }
-  }, [user, isValid, formData, onComplete])
 
   const onSubmit = (data: FormData) => {
     onComplete(data)
@@ -91,7 +47,6 @@ export const StepPersonalInfo: FC<StepPersonalInfoProps> = ({ onComplete, initia
           <Input
             {...register('full_name')}
             placeholder="John Doe"
-            onBlur={handleBlur}
           />
         </FormField>
 
@@ -99,7 +54,6 @@ export const StepPersonalInfo: FC<StepPersonalInfoProps> = ({ onComplete, initia
           <Input
             {...register('headline')}
             placeholder="e.g., Full-stack Developer | React Enthusiast"
-            onBlur={handleBlur}
           />
         </FormField>
 
@@ -108,7 +62,6 @@ export const StepPersonalInfo: FC<StepPersonalInfoProps> = ({ onComplete, initia
             {...register('bio')}
             placeholder="Tell us about yourself..."
             rows={4}
-            onBlur={handleBlur}
           />
         </FormField>
 
@@ -118,7 +71,6 @@ export const StepPersonalInfo: FC<StepPersonalInfoProps> = ({ onComplete, initia
               {...register('professional_email')}
               type="email"
               placeholder="your.email@example.com"
-              onBlur={handleBlur}
             />
           </FormField>
 
@@ -127,7 +79,6 @@ export const StepPersonalInfo: FC<StepPersonalInfoProps> = ({ onComplete, initia
               {...register('personal_website')}
               type="url"
               placeholder="https://yourwebsite.com"
-              onBlur={handleBlur}
             />
           </FormField>
         </div>
@@ -137,7 +88,6 @@ export const StepPersonalInfo: FC<StepPersonalInfoProps> = ({ onComplete, initia
             <Input
               {...register('city')}
               placeholder="San Francisco"
-              onBlur={handleBlur}
             />
           </FormField>
 
@@ -145,7 +95,6 @@ export const StepPersonalInfo: FC<StepPersonalInfoProps> = ({ onComplete, initia
             <Input
               {...register('state')}
               placeholder="CA"
-              onBlur={handleBlur}
             />
           </FormField>
 
@@ -153,7 +102,6 @@ export const StepPersonalInfo: FC<StepPersonalInfoProps> = ({ onComplete, initia
             <Input
               {...register('country')}
               placeholder="USA"
-              onBlur={handleBlur}
             />
           </FormField>
         </div>

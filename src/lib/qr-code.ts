@@ -17,10 +17,8 @@ export async function generateQRData(url: string, errorLevel: ErrorLevel = 'H'):
   try {
     const dataUrl = await QRCode.toDataURL(url, {
       errorCorrectionLevel: errorLevel,
-      type: 'image/png',
-      quality: 0.95,
-      margin: 1,
       width: 300,
+      margin: 1,
       color: {
         dark: '#000000',
         light: '#FFFFFF',
@@ -48,10 +46,8 @@ export async function generateQRCanvas(url: string, errorLevel: ErrorLevel = 'H'
     const canvas = document.createElement('canvas')
     await QRCode.toCanvas(canvas, url, {
       errorCorrectionLevel: errorLevel,
-      type: 'image/png',
-      quality: 0.95,
-      margin: 1,
       width: 300,
+      margin: 1,
       color: {
         dark: '#000000',
         light: '#FFFFFF',
@@ -181,10 +177,8 @@ export async function generateQRSVG(url: string, errorLevel: ErrorLevel = 'H'): 
   try {
     const svgString = await QRCode.toString(url, {
       errorCorrectionLevel: errorLevel,
-      type: 'svg',
-      quality: 0.95,
-      margin: 1,
       width: 300,
+      margin: 1,
       color: {
         dark: '#000000',
         light: '#FFFFFF',

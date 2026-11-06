@@ -1,7 +1,5 @@
 import { FC, useEffect, useState } from 'react'
 import { WizardStep } from '../WizardStep'
-import { FormField } from '../../form/FormField'
-import { Button } from '../../ui/Button'
 import { Card } from '../../ui/Card'
 import { toast } from 'sonner'
 import { supabase } from '../../../lib/supabase'
@@ -18,7 +16,6 @@ export const StepResume: FC<StepResumeProps> = ({ onComplete }) => {
   const [resumeUrl, setResumeUrl] = useState<string | null>(null)
   const [resumePrivacy, setResumePrivacy] = useState<ResumePrivacy>(ResumePrivacy.PRIVATE)
   const [uploading, setUploading] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     if (!user) return
@@ -40,8 +37,6 @@ export const StepResume: FC<StepResumeProps> = ({ onComplete }) => {
         }
       } catch (err: any) {
         toast.error('Failed to load resume: ' + err.message)
-      } finally {
-        setIsLoading(false)
       }
     }
 

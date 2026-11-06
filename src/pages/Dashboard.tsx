@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router'
 import { supabase } from '../lib/supabase'
 import { publicUrl } from '../lib/portfolio'
 import { useAuth } from '../components/AuthProvider'
-import { useProfile } from '../hooks/useProfile'
 import { Zap, Edit3, Eye, Share2, Settings, QrCode } from 'lucide-react'
 
 interface ProfileData {
@@ -47,14 +46,14 @@ const Dashboard: FC = () => {
     supabase
       .from('projects')
       .select('id', { count: 'exact' })
-      .eq('user_id', user.id)
+      .eq('profile_id', user.id)
       .then(({ count }) => setProjects(count || 0))
 
     // Fetch certification count
     supabase
       .from('achievements')
       .select('id', { count: 'exact' })
-      .eq('user_id', user.id)
+      .eq('profile_id', user.id)
       .then(({ count }) => setCertifications(count || 0))
 
     // Calculate profile completion
@@ -64,28 +63,28 @@ const Dashboard: FC = () => {
   const calculateCompletion = async (userId: string) => {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('full_name, professional_headline, profile_picture, short_bio, city, country')
+      .select('fullName, headline, profileImage, bio, city, country')
       .eq('id', userId)
       .single()
 
-    const { data: education, count: eduCount } = await supabase
+    const { count: eduCount } = await supabase
       .from('education')
       .select('id', { count: 'exact' })
-      .eq('user_id', userId)
+      .eq('profile_id', userId)
 
-    const { data: skills, count: skillCount } = await supabase
+    const { count: skillCount } = await supabase
       .from('skills')
       .select('id', { count: 'exact' })
-      .eq('user_id', userId)
+      .eq('profile_id', userId)
 
     // Calculate completion percentage
     let completed = 0
     const total = 10
 
-    if (profile?.full_name) completed++
-    if (profile?.professional_headline) completed++
-    if (profile?.profile_picture) completed++
-    if (profile?.short_bio) completed++
+    if (profile?.fullName) completed++
+    if (profile?.headline) completed++
+    if (profile?.profileImage) completed++
+    if (profile?.bio) completed++
     if (profile?.city) completed++
     if (profile?.country) completed++
     if (projects > 0) completed++

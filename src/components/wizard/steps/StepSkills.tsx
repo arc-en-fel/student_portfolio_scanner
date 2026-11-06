@@ -35,7 +35,6 @@ interface StepSkillsProps {
 export const StepSkills: FC<StepSkillsProps> = ({ onComplete }) => {
   const { user } = useAuth()
   const [skills, setSkills] = useState<Skill[]>([])
-  const [isLoading, setIsLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
 
   const {
@@ -63,8 +62,6 @@ export const StepSkills: FC<StepSkillsProps> = ({ onComplete }) => {
         setSkills(data || [])
       } catch (err: any) {
         toast.error('Failed to load skills: ' + err.message)
-      } finally {
-        setIsLoading(false)
       }
     }
 

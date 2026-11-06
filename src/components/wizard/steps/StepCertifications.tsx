@@ -16,16 +16,16 @@ import { Trash2, Award } from 'lucide-react'
 const certSchema = z.object({
   title: z.string().min(2, 'Certificate title required'),
   issuer: z.string().min(2, 'Issuer required'),
-  issue_date: z.string().min(1, 'Issue date required'),
-  expiration_date: z.string().optional().or(z.literal('')),
-  credential_id: z.string().optional().default(''),
-  credential_url: z.string().url('Valid URL required').optional().or(z.literal('')),
+  issueDate: z.string().min(1, 'Issue date required'),
+  expirationDate: z.string().optional().or(z.literal('')),
+  credentialId: z.string().optional().default(''),
+  credentialUrl: z.string().url('Valid URL required').optional().or(z.literal('')),
 }).refine((data) => {
-  if (!data.expiration_date) return true
-  return new Date(data.issue_date) <= new Date(data.expiration_date)
+  if (!data.expirationDate) return true
+  return new Date(data.issueDate) <= new Date(data.expirationDate)
 }, {
   message: 'Expiration date must be after issue date',
-  path: ['expiration_date'],
+  path: ['expirationDate'],
 })
 
 type CertFormData = z.infer<typeof certSchema>
@@ -37,7 +37,6 @@ interface StepCertificationsProps {
 export const StepCertifications: FC<StepCertificationsProps> = ({ onComplete }) => {
   const { user } = useAuth()
   const [certs, setCerts] = useState<Certification[]>([])
-  const [isLoading, setIsLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
 
   const {
@@ -65,8 +64,6 @@ export const StepCertifications: FC<StepCertificationsProps> = ({ onComplete }) 
         setCerts(data || [])
       } catch (err: any) {
         toast.error('Failed to load certifications: ' + err.message)
-      } finally {
-        setIsLoading(false)
       }
     }
 
@@ -77,9 +74,19 @@ export const StepCertifications: FC<StepCertificationsProps> = ({ onComplete }) 
     if (!user) return
 
     try {
+      const payload = {
+        title: data.title,
+        issuer: data.issuer,
+        issue_date: data.issueDate,
+        expiration_date: data.expirationDate || null,
+        credential_id: data.credentialId || '',
+        credential_url: data.credentialUrl || '',
+        profile_id: user.id,
+      }
+
       const { data: newCert, error } = await supabase
         .from('certifications')
-        .insert([{ ...data, profile_id: user.id }])
+        .insert([payload])
         .select()
         .single()
 
@@ -113,8 +120,8 @@ export const StepCertifications: FC<StepCertificationsProps> = ({ onComplete }) 
   }
 
   const isExpired = (cert: Certification): boolean => {
-    if (!cert.expiration_date) return false
-    return new Date(cert.expiration_date) < new Date()
+    if (!cert.expirationDate) return false
+    return new Date(cert.expirationDate) < new Date()
   }
 
   return (
@@ -134,20 +141,20 @@ export const StepCertifications: FC<StepCertificationsProps> = ({ onComplete }) 
                     <h4 className="font-semibold text-slate-100">{cert.title}</h4>
                     <p className="text-slate-300 text-sm">{cert.issuer}</p>
                     <div className="mt-2 flex gap-4 text-xs text-slate-400">
-                      <span>Issued: {new Date(cert.issue_date).toLocaleDateString()}</span>
-                      {cert.expiration_date && (
+                      <span>Issued: {new Date(cert.issueDate).toLocaleDateString()}</span>
+                      {cert.expirationDate && (
                         <span className={isExpired(cert) ? 'text-red-400' : ''}>
-                          Expires: {new Date(cert.expiration_date).toLocaleDateString()}
+                          Expires: {new Date(cert.expirationDate).toLocaleDateString()}
                           {isExpired(cert) && ' (Expired)'}
                         </span>
                       )}
                     </div>
-                    {cert.credential_id && (
-                      <p className="text-xs text-slate-400 mt-1">ID: {cert.credential_id}</p>
+                    {cert.credentialId && (
+                      <p className="text-xs text-slate-400 mt-1">ID: {cert.credentialId}</p>
                     )}
-                    {cert.credential_url && (
+                    {cert.credentialUrl && (
                       <a
-                        href={cert.credential_url}
+                        href={cert.credentialUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-xs text-teal-400 hover:text-teal-300 mt-1 inline-block"
@@ -187,31 +194,31 @@ export const StepCertifications: FC<StepCertificationsProps> = ({ onComplete }) 
               </FormField>
 
               <div className="grid md:grid-cols-2 gap-4">
-                <FormField label="Issue Date" error={errors.issue_date?.message} required>
+                <FormField label="Issue Date" error={errors.issueDate?.message} required>
                   <Input
-                    {...register('issue_date')}
+                    {...register('issueDate')}
                     type="date"
                   />
                 </FormField>
 
-                <FormField label="Expiration Date (optional)" error={errors.expiration_date?.message}>
+                <FormField label="Expiration Date (optional)" error={errors.expirationDate?.message}>
                   <Input
-                    {...register('expiration_date')}
+                    {...register('expirationDate')}
                     type="date"
                   />
                 </FormField>
               </div>
 
-              <FormField label="Credential ID" error={errors.credential_id?.message}>
+              <FormField label="Credential ID" error={errors.credentialId?.message}>
                 <Input
-                  {...register('credential_id')}
+                  {...register('credentialId')}
                   placeholder="e.g., AWS-2024-12345"
                 />
               </FormField>
 
-              <FormField label="Credential Verification URL" error={errors.credential_url?.message}>
+              <FormField label="Credential Verification URL" error={errors.credentialUrl?.message}>
                 <Input
-                  {...register('credential_url')}
+                  {...register('credentialUrl')}
                   type="url"
                   placeholder="https://verify.credential.com/..."
                 />

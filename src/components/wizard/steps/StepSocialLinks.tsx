@@ -34,7 +34,6 @@ interface StepSocialLinksProps {
 export const StepSocialLinks: FC<StepSocialLinksProps> = ({ onComplete }) => {
   const { user } = useAuth()
   const [links, setLinks] = useState<SocialLink[]>([])
-  const [isLoading, setIsLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [usedPlatforms, setUsedPlatforms] = useState<string[]>([])
 
@@ -64,8 +63,6 @@ export const StepSocialLinks: FC<StepSocialLinksProps> = ({ onComplete }) => {
         setUsedPlatforms((data || []).map(l => l.platform))
       } catch (err: any) {
         toast.error('Failed to load social links: ' + err.message)
-      } finally {
-        setIsLoading(false)
       }
     }
 

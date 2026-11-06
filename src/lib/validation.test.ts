@@ -11,7 +11,7 @@ import {
   DesignSettingsSchema,
   ProfileSchema,
 } from './validation'
-import { SkillCategory, EmploymentType, AchievementCategory, SocialPlatform, TemplateType, ResumePrivacy } from '@/types'
+import { SkillCategory, EmploymentType, AchievementCategory, SocialPlatform, TemplateType } from '@/types'
 
 describe('Validation Schemas', () => {
   describe('PersonalInfoSchema', () => {
