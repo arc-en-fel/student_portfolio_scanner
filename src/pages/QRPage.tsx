@@ -5,7 +5,8 @@ import QRCode from 'qrcode'
 import { useAuth } from '../components/AuthProvider'
 import { supabase } from '../lib/supabase'
 import { publicUrl } from '../lib/portfolio'
-import { Download } from 'lucide-react'
+import { isLocalhostOrPrivate, getCanonicalAppUrl } from '../lib/config'
+import { Download, AlertCircle } from 'lucide-react'
 
 interface ProfileData {
   slug: string
@@ -18,6 +19,7 @@ const QRPage: FC = () => {
   const [profile, setProfile] = useState<ProfileData | null>(null)
   const [message, setMessage] = useState<string>('')
   const [downloading, setDownloading] = useState<boolean>(false)
+  const [isURLPrivate, setIsURLPrivate] = useState(false)
   const qrRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -32,6 +34,16 @@ const QRPage: FC = () => {
         setProfile(data)
         if (error) setMessage(error.message)
       })
+
+    // Check if the canonical URL is private (localhost/LAN in production)
+    try {
+      const appUrl = getCanonicalAppUrl()
+      const isPrivate = isLocalhostOrPrivate(appUrl)
+      setIsURLPrivate(isPrivate && import.meta.env.PROD)
+    } catch {
+      // If error getting URL, it will be caught during QR generation
+      setIsURLPrivate(false)
+    }
   }, [user])
 
   const downloadSVG = () => {
@@ -78,6 +90,17 @@ const QRPage: FC = () => {
     <section className="max-w-xl mt-10">
       <h1 className="text-3xl font-bold">Your Portfolio QR Code</h1>
       {message && <p className="flash mt-4">{message}</p>}
+      
+      {isURLPrivate && (
+        <div className="panel mt-6 bg-amber-50 border-l-4 border-amber-500 p-4 flex gap-3">
+          <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+          <div className="text-sm text-amber-900">
+            <p className="font-semibold">QR code uses a localhost or private URL</p>
+            <p className="mt-1">Configure <code className="bg-amber-100 px-1 rounded text-xs">VITE_APP_URL</code> with your production domain so QR codes are shareable on phones.</p>
+          </div>
+        </div>
+      )}
+
       {profile &&
         (profile.is_published ? (
           <div className="panel mt-6 grid gap-5 justify-items-center">
