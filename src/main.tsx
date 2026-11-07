@@ -44,8 +44,21 @@ function App() {
   )
 }
 
-createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-)
+const rootElement = document.getElementById('root')
+
+if (!rootElement) {
+  const msg = 'Root element not found. Check index.html markup.'
+  console.error(msg)
+  document.body.innerHTML = `<div style="color:red;font-family:monospace;padding:20px">${msg}</div>`
+} else {
+  try {
+    createRoot(rootElement).render(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>
+    )
+  } catch (error) {
+    console.error('Failed to render app:', error)
+    rootElement.innerHTML = `<div style="color:red;font-family:monospace;padding:20px">Failed to initialize StudentFolio. Check console for details.</div>`
+  }
+}

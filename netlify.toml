@@ -4,20 +4,28 @@ publish = "dist"
 
 [build.environment]
 NODE_VERSION = "20"
+# Note: VITE_SUPABASE_URL, VITE_SUPABASE_PUBLISHABLE_KEY, and VITE_APP_URL
+# must be set in Netlify Site Settings > Build & Deploy > Environment
 
+# Redirect all requests to index.html for SPA routing
+# But preserve requests to actual assets
 [[redirects]]
 from = "/*"
 to = "/index.html"
 status = 200
+conditions = { NOT = {path = ["/assets/*", "/index.html"]} }
 
+# Cache headers for immutable assets
 [[headers]]
 for = "/assets/*"
 [headers.values]
 Cache-Control = "public, max-age=31536000, immutable"
 
+# Security headers for all responses
 [[headers]]
 for = "/*"
 [headers.values]
 X-Content-Type-Options = "nosniff"
 X-Frame-Options = "SAMEORIGIN"
 X-XSS-Protection = "1; mode=block"
+Content-Security-Policy = "default-src 'self' https:; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline';"
